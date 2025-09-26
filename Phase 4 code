@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Manual Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .kpis {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      flex: 1;
+      background: #fff;
+      padding: 15px;
+      border-radius: 6px;
+      text-align: center;
+      box-shadow: 0 2px 5px #0001;
+    }
+
+    canvas {
+      background: #fff;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px #0001;
+    }
+
+    button {
+      padding: 6px 12px;
+      border: 0;
+      background: #007bff;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>
+    Hello 👋 Welcome back 
+    <button id="refresh">Refresh</button>
+  </h2>
+
+  <!-- KPI summary cards -->
+  <div class="kpis">
+    <div class="card">
+      <div id="users">—</div>
+      <small>Users</small>
+    </div>
+    <div class="card">
+      <div id="orders">—</div>
+      <small>Orders</small>
+    </div>
+    <div class="card">
+      <div id="revenue">—</div>
+      <small>Revenue</small>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <canvas id="lineChart"></canvas>
+  <canvas id="barChart"></canvas>
+  <canvas id="doughnutChart"></canvas>
+
+<script>
+  // Utility helpers
+  const $ = id => document.getElementById(id);
+  const toInteger = n => Math.floor(n);
+  const formatMoney = n => '$' + toInteger(n);
+
+  // Chart references (so we can destroy before re-creating)
+  let lineChart, barChart, doughnutChart;
+
+  function refreshDashboard() {
+    // Update KPI cards
+    $("users").textContent = toInteger(500 + Math.random() * 2000);
+    $("orders").textContent = toInteger(20 + Math.random() * 200);
+    $("revenue").textContent = formatMoney(1000 + Math.random() * 9000);
+
+    // Generate random datasets
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const lineData = months.map(() => toInteger(500 + Math.random() * 4000));
+    const barData = [2000, 4000, 3500, 1500, 2500].map(x => x + Math.random() * 500);
+    const doughnutData = [50, 150, 600, 200].map(x => x + Math.random() * 100);
+
+    // Destroy old charts if they exist
+    [lineChart, barChart, doughnutChart].forEach(chart => chart && chart.destroy());
+
+    // Line chart (Monthly trends)
+    lineChart = new Chart($("lineChart"), {
+      type: "line",
+      data: {
+        labels: months,
+        datasets: [{
+          data: lineData,
+          borderColor: "blue",
+          tension: 0.3
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    // Bar chart (Category comparison)
+    barChart = new Chart($("barChart"), {
+      type: "bar",
+      data: {
+        labels: ["A", "B", "C", "D", "E"],
+        datasets: [{
+          data: barData,
+          backgroundColor: "purple"
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    // Doughnut chart (User roles)
+    doughnutChart = new Chart($("doughnutChart"), {
+      type: "doughnut",
+      data: {
+        labels: ["Admin", "Editor", "Member", "Guest"],
+        datasets: [{
+          data: doughnutData,
+          backgroundColor: ["#007bff", "#28a745", "#ffc107", "#dc3545"]
+        }]
+      }
+    });
+  }
+
+  // Bind refresh button
+  $("refresh").onclick = refreshDashboard;
+
+  // Initial load
+  refreshDashboard();
+</script>
+</body>
+</html>
